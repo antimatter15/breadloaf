@@ -23,7 +23,7 @@ function uuid(){
 
 
 function computeLines(el){
-	var rows = el.querySelectorAll('.row');
+	var rows = el.querySelectorAll('.bread-row');
 	var lines = []
 	for(var i = 0; i < rows.length; i++){
 		var rect = rows[i].getBoundingClientRect()
@@ -40,7 +40,7 @@ function computeLines(el){
 			pos: 'bottom-' + i
 		})
 
-		var slices = rows[i].querySelectorAll('.col');
+		var slices = rows[i].querySelectorAll('.bread-col');
 		for(var j = 0; j < slices.length; j++){
 			var rect = slices[j].getBoundingClientRect()
 			if(j === 0){
@@ -61,8 +61,8 @@ function computeLines(el){
 }
 
 function getRect(el, i, j){
-	var rows = el.querySelectorAll('.row');
-	var slices = rows[i].querySelectorAll('.slice');
+	var rows = el.querySelectorAll('.bread-row');
+	var slices = rows[i].querySelectorAll('.bread-col');
 	var rect = slices[j].getBoundingClientRect()
 	return rect;
 }
