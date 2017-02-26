@@ -1,6 +1,6 @@
 {
   "name": "breadloaf",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "breadloaf React component",
   "main": "lib/index.js",
   "module": "es/index.js",

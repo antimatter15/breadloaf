@@ -68,6 +68,17 @@ function getRect(el, i, j){
 }
 
 
+function locateKey(layout, id){
+	for(var i = 0; i < layout.length; i++){
+		var items = layout[i].items;
+		for(var j = 0; j < items.length; j++){
+			if(items[j].id === id){
+				return [i, j]
+			}
+		}
+	}
+}
+
 export default class BreadLoaf extends React.Component {
 	constructor(){
 		super()
@@ -224,30 +235,38 @@ export default class BreadLoaf extends React.Component {
 								pos: [rowi, coli],
 								updateView: d => {
 									var newRows = this.cloneLayout()
+									let [rowi, coli] = locateKey(newRows, data.id)
 									newRows[rowi].items[coli] = Object.assign({}, data, d)
 									this.updateLayout(newRows)
 								},
 								close: d => {
 									var newRows = this.cloneLayout()
+									let [rowi, coli] = locateKey(newRows, data.id)
 									newRows[rowi].items.splice(coli, 1)
 									this.updateLayout(newRows)
 								},
 								fork: d => {
 									var newRows = this.cloneLayout()
+									let [rowi, coli] = locateKey(newRows, data.id)
 									newRows[rowi].items.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }) )
 									this.updateLayout(newRows)
 								},
 								after: d => {
 									var newRows = this.cloneLayout()
+									let [rowi, coli] = locateKey(newRows, data.id)
 									newRows.splice(rowi+1, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
 									this.updateLayout(newRows)
 								},
 								before: d => {
 									var newRows = this.cloneLayout()
+									let [rowi, coli] = locateKey(newRows, data.id)
 									newRows.splice(rowi, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
 									this.updateLayout(newRows)
 								},
-								beginDrag: e => this.beginDrag(rowi + '-' + coli, e)
+								beginDrag: e => {
+									let [rowi, coli] = locateKey(this.getLayout(), data.id)
+									this.beginDrag(rowi + '-' + coli, e)
+								}
 							})
 						}</div>
 					)}
