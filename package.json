@@ -18,7 +18,10 @@
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server"
   },
-  "dependencies": {},
+  "dependencies": {
+    "react-addons-css-transition-group": "^15.4.2",
+    "react-flip-move": "^2.9.1"
+  },
   "peerDependencies": {
     "react": ""
   },

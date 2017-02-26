@@ -83,13 +83,10 @@ export default class BreadLoaf extends React.Component {
 	}
 
 	onDrag(e){
-		if(!this.state.dragObject) return;
-
-		e.preventDefault();
+		if(this.state.dragObject) e.preventDefault();
 
 		var clientY = e.clientY;
 		var el = ReactDOM.findDOMNode(this);
-		
 		var pos = this.state.dragObject.split('-');
 		var thingRect = getRect(el, pos[0], pos[1]);
 		var lines = computeLines(el)
@@ -120,7 +117,6 @@ export default class BreadLoaf extends React.Component {
 	}
 
 	updateLayout(data){
-		data = data.filter(k => k.items.length > 0)
 		if(this.props.layout){
 			this.props.updateLayout(data)
 		}else{
@@ -134,21 +130,9 @@ export default class BreadLoaf extends React.Component {
 			return this.state.layout;
 		}
 	}
-	append(item){
-		this.updateLayout(this.getLayout().concat([{
-			rowId: uuid(),
-			items: [ Object.assign({ id: uuid() }, item)]
-		}]))
-	}
-	prepend(item){
-		this.updateLayout([{
-			rowId: uuid(),
-			items: [ Object.assign({ id: uuid() }, item)]
-		}].concat(this.getLayout()))
-	}
 
 	endDrag(e){
-		if(this.state.dockTarget && this.state.dragObject){
+		if(this.state.dockTarget){
 			var pos = this.state.dockTarget.split('-');
 			var thing = this.state.dragObject.split('-');
 			var nextRows = this.cloneLayout();
@@ -192,6 +176,8 @@ export default class BreadLoaf extends React.Component {
 				// actually remove the thing
 				nextRows[i].items = nextRows[i].items.filter(k => k !== null)
 			}
+
+			nextRows = nextRows.filter(k => k.items.length > 0)
 			this.updateLayout(nextRows)
 		}
 		this.setState({ dragObject: null, dockTarget: null })
@@ -201,9 +187,8 @@ export default class BreadLoaf extends React.Component {
 
 	render(){
 		return <div className="bread" style={{ cursor: this.state.dragObject ? 'move' : 'default' }}><FlipMove>
-		{this.props.header || null}
 		{this.getLayout().map((row, rowi) => 
-			<div className={"bread-row " + (
+			<div className={"row " + (
 				(this.state.dockTarget === ('top-' + rowi) ? 'insert-top ' : '') +
 				(this.state.dockTarget === ('bottom-' + rowi) ? 'insert-bottom ' : '') +
 				(row.items.length > 1 ? '' : 'row-1')
@@ -213,11 +198,11 @@ export default class BreadLoaf extends React.Component {
 		          transitionEnterTimeout={300}
 		          transitionLeaveTimeout={300}>
 					{row.items.map((data, coli) => 
-						<div className={"bread-col " + (
+						<div className={"col " + (
 							(this.state.dockTarget === ('left-' + rowi + '-' + coli) ? 'insert-left ' : '') +
 							(this.state.dockTarget === ('right-' + rowi + '-' + coli) ? 'insert-right ' : '')
 						)} key={data.id}>{
-							React.cloneElement(this.props.element, {
+							React.cloneElement(this.props.children, {
 								isDragging: this.state.dragObject === rowi + '-' + coli,
 								view: data,
 								layout: this.getLayout(),
@@ -237,24 +222,13 @@ export default class BreadLoaf extends React.Component {
 									newRows[rowi].items.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }) )
 									this.updateLayout(newRows)
 								},
-								after: d => {
-									var newRows = this.cloneLayout()
-									newRows.splice(rowi+1, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
-									this.updateLayout(newRows)
-								},
-								before: d => {
-									var newRows = this.cloneLayout()
-									newRows.splice(rowi, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
-									this.updateLayout(newRows)
-								},
 								beginDrag: e => this.beginDrag(rowi + '-' + coli, e)
 							})
 						}</div>
 					)}
 				</ReactCSSTransitionGroup>
 			</div>
-		)}
-		{this.props.footer || null}
+		)}		
 		</FlipMove></div>
 	}
 }

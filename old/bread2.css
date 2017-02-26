@@ -1,0 +1,52 @@
+.breadloaf {
+
+}
+
+.bread-row.size-1 {
+  max-width: 70vw;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+
+
+.bread-row > * {
+	display: flex;
+}
+.bread-row {
+  border-bottom: 5px solid transparent;
+}
+.bread-row:first-child {
+	border-top: 5px solid transparent;
+}
+
+
+.bread-row.insert-top {
+  border-top: 5px solid orange; 
+}
+
+.bread-row.insert-bottom {
+  border-bottom: 5px solid orange; 
+}
+
+
+.bread-col {
+	flex-basis: 0;
+	flex-grow: 1;
+	border-right: 5px solid transparent;
+	padding: 5px;
+  	overflow: hidden;
+}
+.bread-col:first-child {
+	border-left: 5px solid transparent;
+}
+
+
+.bread-col.insert-left {
+  border-left: 5px solid orange; 
+}
+
+.bread-col.insert-right {
+  border-right: 5px solid orange; 
+}
