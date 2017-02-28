@@ -16,7 +16,8 @@
     "start": "nwb serve-react-demo",
     "test": "nwb test-react",
     "test:coverage": "nwb test-react --coverage",
-    "test:watch": "nwb test-react --server"
+    "test:watch": "nwb test-react --server",
+    "deploy": "cp -r demo/dist/* deploy && cd deploy && git add . && git commit -m deploy && git push origin gh-pages"
   },
   "dependencies": {
     "react-addons-css-transition-group": "^15.4.2",

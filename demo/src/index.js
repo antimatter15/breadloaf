@@ -4,7 +4,7 @@ import {render} from 'react-dom'
 
 import BreadLoaf from '../../src'
 import '../../src/bread.css'
-
+import './demo.css'
 
 
 
@@ -59,15 +59,15 @@ class Slice extends React.Component {
 	}
 	render(){
 		return <div className="slice">
-			<div className="header" onMouseDown={this.props.beginDrag}>
-				<div style={{flexGrow: 1}}>move this</div>
+			<div className="slice-header" onMouseDown={this.props.beginDrag}>
+				<div style={{flexGrow: 1}}>drag to move this</div>
 
 				<button onClick={this.props.fork}>fork</button>
 				<button onClick={this.props.close}>&times;</button>
 			</div>
-			<div style={{ display: 'flex' }}>
+			<div style={{ display: 'flex', overflow: 'hidden' }}>
 				<textarea 
-					style={{ width: '50%', minWidth: '50%', border: 0 }}
+					style={{ width: '50%', minWidth: '50%', border: 0, padding: 10, fontFamily: 'Menlo, monospace', outline: 0 }}
 					value={this.props.view.text || ''} 
 					onInput={e => this.props.updateView({ text: e.target.value}) } />
 				<canvas 
@@ -109,7 +109,9 @@ x.stroke()
 
 	
     return <div>
-      <h1>breadloaf Demo</h1>
+    	<div className="header">
+      		<h1>BreadLoaf Demo</h1>
+      	</div>
     
     	<BreadLoaf 
     		ref={e => this.loaf = e} 
@@ -121,7 +123,7 @@ x.stroke()
     		footer={
 				<div className="fake-row row-1" onClick={e => this.loaf.append({})}>
 					<span>
-						<div className="col">
+						<div className="bread-col">
 							<div className="fake-slice">+</div>
 						</div>
 					</span>

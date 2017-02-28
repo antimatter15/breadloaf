@@ -210,6 +210,48 @@ export default class BreadLoaf extends React.Component {
 		window.removeEventListener('mouseup', this.endDrag)
 	}
 
+	makeElement(data, pos){
+		return React.cloneElement(this.props.element, {
+			isDragging: this.state.dragObject === pos,
+			view: data,
+			layout: this.getLayout(),
+			updateView: d => {
+				var newRows = this.cloneLayout()
+				let [rowi, coli] = locateKey(newRows, data.id)
+				newRows[rowi].items[coli] = Object.assign({}, data, d)
+				this.updateLayout(newRows)
+			},
+			close: d => {
+				var newRows = this.cloneLayout()
+				let [rowi, coli] = locateKey(newRows, data.id)
+				newRows[rowi].items.splice(coli, 1)
+				this.updateLayout(newRows)
+			},
+			fork: d => {
+				var newRows = this.cloneLayout()
+				let [rowi, coli] = locateKey(newRows, data.id)
+				newRows[rowi].items.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }) )
+				this.updateLayout(newRows)
+			},
+			after: d => {
+				var newRows = this.cloneLayout()
+				let [rowi, coli] = locateKey(newRows, data.id)
+				newRows.splice(rowi+1, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
+				this.updateLayout(newRows)
+			},
+			before: d => {
+				var newRows = this.cloneLayout()
+				let [rowi, coli] = locateKey(newRows, data.id)
+				newRows.splice(rowi, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
+				this.updateLayout(newRows)
+			},
+			beginDrag: e => {
+				let [rowi, coli] = locateKey(this.getLayout(), data.id)
+				this.beginDrag(rowi + '-' + coli, e)
+			}
+		})
+	}
+
 	render(){
 		return <div className="bread" style={{ cursor: this.state.dragObject ? 'move' : 'default' }}><FlipMove>
 		{this.props.header || null}
@@ -219,58 +261,30 @@ export default class BreadLoaf extends React.Component {
 				(this.state.dockTarget === ('bottom-' + rowi) ? 'insert-bottom ' : '') +
 				(row.items.length > 1 ? '' : 'row-1')
 			)} key={row.rowId}>
+				{rowi == 0 ? <div className="divider divider-top" onClick={d => {
+					var newRows = this.cloneLayout()
+					let rowi = newRows.findIndex(k => k.rowId == row.rowId)
+					newRows.splice(rowi, 0, { rowId: uuid(), items: [ { id: uuid() } ] })
+					this.updateLayout(newRows)
+				}} /> : null}
 				<ReactCSSTransitionGroup
-		          transitionName="example"
+		          transitionName="bread"
 		          transitionEnterTimeout={300}
 		          transitionLeaveTimeout={300}>
 					{row.items.map((data, coli) => 
 						<div className={"bread-col " + (
+							(this.state.dragObject === (rowi + '-' + coli) ? 'dragging ' : '')  +
 							(this.state.dockTarget === ('left-' + rowi + '-' + coli) ? 'insert-left ' : '') +
 							(this.state.dockTarget === ('right-' + rowi + '-' + coli) ? 'insert-right ' : '')
-						)} key={data.id}>{
-							React.cloneElement(this.props.element, {
-								isDragging: this.state.dragObject === rowi + '-' + coli,
-								view: data,
-								layout: this.getLayout(),
-								pos: [rowi, coli],
-								updateView: d => {
-									var newRows = this.cloneLayout()
-									let [rowi, coli] = locateKey(newRows, data.id)
-									newRows[rowi].items[coli] = Object.assign({}, data, d)
-									this.updateLayout(newRows)
-								},
-								close: d => {
-									var newRows = this.cloneLayout()
-									let [rowi, coli] = locateKey(newRows, data.id)
-									newRows[rowi].items.splice(coli, 1)
-									this.updateLayout(newRows)
-								},
-								fork: d => {
-									var newRows = this.cloneLayout()
-									let [rowi, coli] = locateKey(newRows, data.id)
-									newRows[rowi].items.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }) )
-									this.updateLayout(newRows)
-								},
-								after: d => {
-									var newRows = this.cloneLayout()
-									let [rowi, coli] = locateKey(newRows, data.id)
-									newRows.splice(rowi+1, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
-									this.updateLayout(newRows)
-								},
-								before: d => {
-									var newRows = this.cloneLayout()
-									let [rowi, coli] = locateKey(newRows, data.id)
-									newRows.splice(rowi, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
-									this.updateLayout(newRows)
-								},
-								beginDrag: e => {
-									let [rowi, coli] = locateKey(this.getLayout(), data.id)
-									this.beginDrag(rowi + '-' + coli, e)
-								}
-							})
-						}</div>
+						)} key={data.id}>{ this.makeElement(data, rowi + '-' + coli) }</div>
 					)}
 				</ReactCSSTransitionGroup>
+				<div className="divider divider-bottom"  onClick={d => {
+					var newRows = this.cloneLayout()
+					let rowi = newRows.findIndex(k => k.rowId == row.rowId)
+					newRows.splice(rowi + 1, 0, { rowId: uuid(), items: [ { id: uuid() } ] })
+					this.updateLayout(newRows)
+				}} />
 			</div>
 		)}
 		{this.props.footer || null}
