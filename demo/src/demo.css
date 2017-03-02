@@ -11,7 +11,7 @@ body {
     margin-left: auto;
     margin-right: auto;
 
-    padding: 0 10px;
+    padding: 0 18px;
     box-sizing: border-box;
 }
 
@@ -109,8 +109,9 @@ body {
   color: #d8d8d8;
   -webkit-user-select: none;
   cursor: pointer;
-
+  flex-grow: 1;
   transition: all 200ms ease-in;
+    margin: 0 19px;
 }
 
 .fake-slice:hover {

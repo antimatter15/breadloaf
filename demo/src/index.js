@@ -10,7 +10,7 @@ import './demo.css'
 
 class Slice extends React.Component {
 	componentDidMount(){
-		// this.loop = requestAnimationFrame(this.frame.bind(this))
+		this.loop = requestAnimationFrame(this.frame.bind(this))
 		this.componentDidUpdate()
 	}
 	componentWillUnmount(){
@@ -120,19 +120,20 @@ x.stroke()
     		element={
     			<Slice />
     		}
+    		footer={
+				<div className="fake-row row-1" onClick={e => this.loaf.append({})}>
+					<span>
+						<div className="bread-col">
+							<div className="fake-slice">+</div>
+						</div>
+					</span>
+				</div>
+    		}
     		 />
 
     </div>
 
-    // footer={
-				// <div className="fake-row row-1" onClick={e => this.loaf.append({})}>
-				// 	<span>
-				// 		<div className="bread-col">
-				// 			<div className="fake-slice">+</div>
-				// 		</div>
-				// 	</span>
-				// </div>
-    // 		}
+
    
   }
 }
