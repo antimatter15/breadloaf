@@ -29,6 +29,9 @@ body {
     background: white;
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
 }
 
 
@@ -54,6 +57,7 @@ body {
     background: #ffa116;
     cursor: pointer;
     display: flex;
+    white-space: nowrap;
 }
 
 .slice-header button {
@@ -112,3 +116,28 @@ body {
   border: 2px dashed gray;
   color: gray;
 }
+
+
+
+@media (max-width: 700px) {
+    .bread-row > span {
+        display: block;
+    }
+
+    .vertical-divider {
+        display: none;
+    }
+
+    .bread-col {
+      padding: 5px 10px;
+    }
+}
+
+@media (min-width: 700px) {
+  .row-1 {
+    max-width: 70vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+

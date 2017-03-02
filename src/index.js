@@ -115,9 +115,14 @@ export default class BreadLoaf extends React.Component {
 		if(e.clientX > thingRect.left && e.clientX < thingRect.right
 			&& e.clientY > thingRect.top && e.clientY < thingRect.bottom){
 
-			closestPos = (+pos[1] == 0) ? 
-				('left-' + pos.join('-')) : 
-				('right-' + [pos[0], pos[1] - 1].join('-'))
+			if(e.clientX > thingRect.left / 2 + thingRect.right / 2){
+				closestPos = 'right-' + [pos[0], pos[1] ].join('-')
+			}else{
+				closestPos = (+pos[1] == 0) ? 
+					('left-' + pos.join('-')) : 
+					('right-' + [pos[0], pos[1] - 1].join('-'))	
+			}
+			
 		}
 
 		if(this.state.dockTarget !== closestPos)
@@ -167,11 +172,12 @@ export default class BreadLoaf extends React.Component {
 			var i = +thing[0], j = +thing[1];
 
 			if(anchor === 'top' || anchor === 'bottom'){
-				if((nextRows[i].items.length == 1) &&
+				if(!e.altKey && (nextRows[i].items.length == 1) &&
 					((anchor === 'top'  && i === +pos[1]) || 
 					(anchor === 'bottom' && i === parseInt(pos[1])+1) ||
 					(anchor === 'bottom' && i === +pos[1]) )
 				){
+					// console.log('noop', anchor, thing, pos)
 				}else{
 					if(e.altKey){
 						// don't remove the old one, just make a copy
@@ -276,7 +282,21 @@ export default class BreadLoaf extends React.Component {
 							(this.state.dragObject === (rowi + '-' + coli) ? 'dragging ' : '')  +
 							(this.state.dockTarget === ('left-' + rowi + '-' + coli) ? 'insert-left ' : '') +
 							(this.state.dockTarget === ('right-' + rowi + '-' + coli) ? 'insert-right ' : '')
-						)} key={data.id}>{ this.makeElement(data, rowi + '-' + coli) }</div>
+						)} key={data.id}>
+							{ coli == 0 && <div className="vertical-divider divider-left" onClick={d => {
+								var newRows = this.cloneLayout()
+								let [rowi, coli] = locateKey(newRows, data.id)
+								newRows[rowi].items.splice(coli, 0, { id: uuid() } )
+								this.updateLayout(newRows)
+							}} /> }
+							{ this.makeElement(data, rowi + '-' + coli) }
+							<div className="vertical-divider divider-right" onClick={d => {
+								var newRows = this.cloneLayout()
+								let [rowi, coli] = locateKey(newRows, data.id)
+								newRows[rowi].items.splice(coli + 1, 0, { id: uuid() } )
+								this.updateLayout(newRows)
+							}} />
+						</div>
 					)}
 				</ReactCSSTransitionGroup>
 				<div className="divider divider-bottom"  onClick={d => {
