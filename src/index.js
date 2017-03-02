@@ -270,7 +270,13 @@ export default class BreadLoaf extends React.Component {
 				{rowi == 0 ? <div className="divider divider-top" onClick={d => {
 					var newRows = this.cloneLayout()
 					let rowi = newRows.findIndex(k => k.rowId == row.rowId)
-					newRows.splice(rowi, 0, { rowId: uuid(), items: [ { id: uuid() } ] })
+					
+					let divRect = d.target.getBoundingClientRect()
+					let data = newRows[rowi].items[Math.floor(newRows[rowi].items.length * (d.clientX - divRect.left) / divRect.right)];
+
+					newRows.splice(rowi, 0, { rowId: uuid(), items: [ 
+						Object.assign({}, d.altKey ? data : {}, { id: uuid() })
+					] })
 					this.updateLayout(newRows)
 				}} /> : null}
 				<ReactCSSTransitionGroup
@@ -286,14 +292,18 @@ export default class BreadLoaf extends React.Component {
 							{ coli == 0 && <div className="vertical-divider divider-left" onClick={d => {
 								var newRows = this.cloneLayout()
 								let [rowi, coli] = locateKey(newRows, data.id)
-								newRows[rowi].items.splice(coli, 0, { id: uuid() } )
+								newRows[rowi].items.splice(coli, 0, 
+									Object.assign({}, d.altKey ? data : {}, { id: uuid() })
+								)
 								this.updateLayout(newRows)
 							}} /> }
 							{ this.makeElement(data, rowi + '-' + coli) }
 							<div className="vertical-divider divider-right" onClick={d => {
 								var newRows = this.cloneLayout()
 								let [rowi, coli] = locateKey(newRows, data.id)
-								newRows[rowi].items.splice(coli + 1, 0, { id: uuid() } )
+								newRows[rowi].items.splice(coli + 1, 0, 
+									Object.assign({}, d.altKey ? data : {}, { id: uuid() })
+								)
 								this.updateLayout(newRows)
 							}} />
 						</div>
@@ -302,7 +312,13 @@ export default class BreadLoaf extends React.Component {
 				<div className="divider divider-bottom"  onClick={d => {
 					var newRows = this.cloneLayout()
 					let rowi = newRows.findIndex(k => k.rowId == row.rowId)
-					newRows.splice(rowi + 1, 0, { rowId: uuid(), items: [ { id: uuid() } ] })
+					
+					let divRect = d.target.getBoundingClientRect()
+					let data = newRows[rowi].items[Math.floor(newRows[rowi].items.length * (d.clientX - divRect.left) / divRect.right)];
+
+					newRows.splice(rowi + 1, 0, { rowId: uuid(), items: [ 
+						Object.assign({}, d.altKey ? data : {}, { id: uuid() })
+					] })
 					this.updateLayout(newRows)
 				}} />
 			</div>
