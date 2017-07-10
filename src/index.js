@@ -3,6 +3,13 @@ import ReactDOM from 'react-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group' // ES6
 import FlipMove from 'react-flip-move';
 
+
+const SCROLL_MARGIN = 50;
+const MAX_SCROLL_SPEED = 30;
+const SCROLL_ACCELERATION = 1.02;
+const INITIAL_SCROLL_SPEED = 2;
+
+
 function square(x) { return x * x }
 function distSquared(v, w) { return square(v.x - w.x) + square(v.y - w.y) }
 function distToSegmentSquared(p, v, w) {
@@ -91,6 +98,23 @@ export default class BreadLoaf extends React.Component {
 		this.setState({ dragObject: thing })
 		window.addEventListener('mousemove', this.onDrag)
 		window.addEventListener('mouseup', this.endDrag)
+		requestAnimationFrame(this.dragScroll.bind(this))
+	}
+
+	dragScroll(){
+		if(!this.state.dragObject) return;
+
+		if(this.shouldScroll){
+			window.scrollBy(0, this.shouldScroll);
+
+			if(this.shouldScroll < 0){
+				this.shouldScroll = (this.shouldScroll < 0) ? Math.max(-MAX_SCROLL_SPEED, this.shouldScroll * SCROLL_ACCELERATION) : -INITIAL_SCROLL_SPEED;
+			}else if(this.shouldScroll > 0){
+				this.shouldScroll = (this.shouldScroll > 0) ? Math.min(MAX_SCROLL_SPEED, this.shouldScroll * SCROLL_ACCELERATION) : INITIAL_SCROLL_SPEED;
+			}
+		}
+
+		requestAnimationFrame(this.dragScroll.bind(this))
 	}
 
 	onDrag(e){
@@ -110,7 +134,15 @@ export default class BreadLoaf extends React.Component {
 				{ x: k.x0, y: k.y0 }, { x: k.x1, y: k.y1 }))
 
 		var closestPos = lines.sort((a, b) => a.dist - b.dist)[0].pos
-		
+
+        if (e.clientY < SCROLL_MARGIN) {
+            this.shouldScroll = (this.shouldScroll < 0) ? Math.max(-MAX_SCROLL_SPEED, this.shouldScroll * SCROLL_ACCELERATION) : -INITIAL_SCROLL_SPEED;
+        }else if (e.clientY > (innerHeight - SCROLL_MARGIN)) {
+         	this.shouldScroll = (this.shouldScroll > 0) ? Math.min(MAX_SCROLL_SPEED, this.shouldScroll * SCROLL_ACCELERATION) : INITIAL_SCROLL_SPEED;
+        }else{
+        	this.shouldScroll = false;
+        }
+
 
 		if(e.clientX > thingRect.left && e.clientX < thingRect.right
 			&& e.clientY > thingRect.top && e.clientY < thingRect.bottom){
@@ -135,10 +167,10 @@ export default class BreadLoaf extends React.Component {
 		})
 	}
 
-	updateLayout(data){
+	updateLayout(data, ...args){
 		data = data.filter(k => k.items.length > 0)
 		if(this.props.layout){
-			this.props.updateLayout(data)
+			this.props.updateLayout(data, ...args)
 		}else{
 			this.setState({ layout: data })
 		}
@@ -150,17 +182,29 @@ export default class BreadLoaf extends React.Component {
 			return this.state.layout;
 		}
 	}
+
+	makeItem(basis = {}){
+		if(this.props.makeItem){
+			basis = this.props.makeItem()
+		}
+		return basis
+	}
+
 	append(item){
+		if(!item.id) item.id = uuid();
+
 		this.updateLayout(this.getLayout().concat([{
 			rowId: uuid(),
-			items: [ Object.assign({ id: uuid() }, item)]
-		}]))
+			items: [ item ]
+		}]), 'append', item)
 	}
 	prepend(item){
+		if(!item.id) item.id = uuid();
+
 		this.updateLayout([{
 			rowId: uuid(),
-			items: [ Object.assign({ id: uuid() }, item)]
-		}].concat(this.getLayout()))
+			items: [ item ]
+		}].concat(this.getLayout()), 'prepend', item)
 	}
 
 	endDrag(e){
@@ -209,7 +253,7 @@ export default class BreadLoaf extends React.Component {
 				// actually remove the thing
 				nextRows[i].items = nextRows[i].items.filter(k => k !== null)
 			}
-			this.updateLayout(nextRows)
+			this.updateLayout(nextRows, 'drag', oldThing)
 		}
 		this.setState({ dragObject: null, dockTarget: null })
 		window.removeEventListener('mousemove', this.onDrag)
@@ -225,31 +269,31 @@ export default class BreadLoaf extends React.Component {
 				var newRows = this.cloneLayout()
 				let [rowi, coli] = locateKey(newRows, data.id)
 				newRows[rowi].items[coli] = Object.assign({}, data, d)
-				this.updateLayout(newRows)
+				this.updateLayout(newRows, 'update', data)
 			},
-			close: d => {
+			close: (...args) => {
 				var newRows = this.cloneLayout()
 				let [rowi, coli] = locateKey(newRows, data.id)
 				newRows[rowi].items.splice(coli, 1)
-				this.updateLayout(newRows)
+				this.updateLayout(newRows, 'close', data, ...args)
 			},
-			fork: d => {
+			fork: (...args) => {
 				var newRows = this.cloneLayout()
 				let [rowi, coli] = locateKey(newRows, data.id)
 				newRows[rowi].items.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }) )
-				this.updateLayout(newRows)
+				this.updateLayout(newRows, 'fork', data, ...args)
 			},
-			after: d => {
+			after: (...args) => {
 				var newRows = this.cloneLayout()
 				let [rowi, coli] = locateKey(newRows, data.id)
 				newRows.splice(rowi+1, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
-				this.updateLayout(newRows)
+				this.updateLayout(newRows, 'insert', data, ...args)
 			},
-			before: d => {
+			before: (...args) => {
 				var newRows = this.cloneLayout()
 				let [rowi, coli] = locateKey(newRows, data.id)
 				newRows.splice(rowi, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
-				this.updateLayout(newRows)
+				this.updateLayout(newRows, 'insert', data, ...args)
 			},
 			beginDrag: e => {
 				let [rowi, coli] = locateKey(this.getLayout(), data.id)
@@ -273,11 +317,9 @@ export default class BreadLoaf extends React.Component {
 					
 					let divRect = d.target.getBoundingClientRect()
 					let data = newRows[rowi].items[Math.floor(newRows[rowi].items.length * (d.clientX - divRect.left) / divRect.right)];
-
-					newRows.splice(rowi, 0, { rowId: uuid(), items: [ 
-						Object.assign({}, d.altKey ? data : {}, { id: uuid() })
-					] })
-					this.updateLayout(newRows)
+					let item = Object.assign({}, d.altKey ? data : {}, { id: uuid() });
+					newRows.splice(rowi, 0, { rowId: uuid(), items: [  item ] })
+					this.updateLayout(newRows, 'insert', item)
 				}} /> : null}
 				<ReactCSSTransitionGroup
 		          transitionName="bread"
@@ -292,19 +334,17 @@ export default class BreadLoaf extends React.Component {
 							{ coli == 0 && <div className="vertical-divider divider-left" onClick={d => {
 								var newRows = this.cloneLayout()
 								let [rowi, coli] = locateKey(newRows, data.id)
-								newRows[rowi].items.splice(coli, 0, 
-									Object.assign({}, d.altKey ? data : {}, { id: uuid() })
-								)
-								this.updateLayout(newRows)
+								let item = Object.assign({}, d.altKey ? data : this.makeItem(), { id: uuid() });
+								newRows[rowi].items.splice(coli, 0, item)
+								this.updateLayout(newRows, d.altKey ? 'fork' : 'insert', item)
 							}} /> }
 							{ this.makeElement(data, rowi + '-' + coli) }
 							<div className="vertical-divider divider-right" onClick={d => {
 								var newRows = this.cloneLayout()
 								let [rowi, coli] = locateKey(newRows, data.id)
-								newRows[rowi].items.splice(coli + 1, 0, 
-									Object.assign({}, d.altKey ? data : {}, { id: uuid() })
-								)
-								this.updateLayout(newRows)
+								let item = Object.assign({}, d.altKey ? data : this.makeItem(), { id: uuid() });
+								newRows[rowi].items.splice(coli + 1, 0, item)
+								this.updateLayout(newRows, d.altKey ? 'fork' : 'insert', item)
 							}} />
 						</div>
 					)}
@@ -316,10 +356,9 @@ export default class BreadLoaf extends React.Component {
 					let divRect = d.target.getBoundingClientRect()
 					let data = newRows[rowi].items[Math.floor(newRows[rowi].items.length * (d.clientX - divRect.left) / divRect.right)];
 
-					newRows.splice(rowi + 1, 0, { rowId: uuid(), items: [ 
-						Object.assign({}, d.altKey ? data : {}, { id: uuid() })
-					] })
-					this.updateLayout(newRows)
+					let item = Object.assign({}, d.altKey ? data : this.makeItem(), { id: uuid() })
+					newRows.splice(rowi + 1, 0, { rowId: uuid(), items: [  item ] })
+					this.updateLayout(newRows, 'insert', item)
 				}} />
 			</div>
 		)}

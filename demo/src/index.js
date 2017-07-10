@@ -116,7 +116,10 @@ x.stroke()
     	<BreadLoaf 
     		ref={e => this.loaf = e} 
     		layout={this.state.layout}
-    		updateLayout={e => this.setState({ layout: e })}
+    		updateLayout={(data, trigger, view) => {
+    			this.setState({ layout: data })
+    			console.log(trigger, view)
+    		}}
     		element={
     			<Slice />
     		}

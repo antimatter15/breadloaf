@@ -1,6 +1,6 @@
 {
   "name": "breadloaf",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A draggable, dockable, notebook-style layout engine for React",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -20,6 +20,8 @@
     "deploy": "cp -r demo/dist/* deploy && cd deploy && git add . && git commit -m deploy && git push origin gh-pages"
   },
   "dependencies": {
+    "@blueprintjs/core": "^1.21.0",
+    "@blueprintjs/table": "^1.18.0",
     "react-addons-css-transition-group": "^15.4.2",
     "react-flip-move": "^2.9.1"
   },
