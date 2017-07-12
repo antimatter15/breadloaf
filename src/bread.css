@@ -82,7 +82,7 @@
 
 	/*border-right: 5px solid transparent;*/
 	/*padding:  5px 5px 7px 5px;*/
-  overflow: hidden;
+  /* overflow: hidden; */
   transition: border-color 200ms ease-in;
   display: flex;
 
@@ -98,10 +98,14 @@
   -webkit-animation: flexGrow 300ms ease forwards;
   -o-animation: flexGrow 300ms ease forwards;
   animation: flexGrow 300ms ease forwards;
+
+  overflow-x: hidden;
 }
 
 
 .bread-leave {
+  overflow-x: hidden;
+  
   flex: 1;
 
   -webkit-animation: flexShrink 300ms ease forwards;
