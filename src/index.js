@@ -280,20 +280,23 @@ export default class BreadLoaf extends React.Component {
             fork: (...args) => {
                 var newRows = this.cloneLayout()
                 let [rowi, coli] = locateKey(newRows, data.id)
-                newRows[rowi].items.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }) )
-                this.updateLayout(newRows, 'fork', data, ...args)
+                let newData = Object.assign({}, data, { id: uuid() });
+                newRows[rowi].items.splice(coli + 1, 0,  newData)
+                this.updateLayout(newRows, 'fork', newData, ...args)
             },
             after: (...args) => {
                 var newRows = this.cloneLayout()
                 let [rowi, coli] = locateKey(newRows, data.id)
-                newRows.splice(rowi+1, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
-                this.updateLayout(newRows, 'insert', data, ...args)
+                let newData = Object.assign({}, data, { id: uuid() });
+                newRows.splice(rowi+1, 0, { rowId: uuid(), items: [ newData ] })
+                this.updateLayout(newRows, 'insert', newData, ...args)
             },
             before: (...args) => {
                 var newRows = this.cloneLayout()
                 let [rowi, coli] = locateKey(newRows, data.id)
-                newRows.splice(rowi, 0, { rowId: uuid(), items: [ Object.assign({}, data, { id: uuid() }) ] })
-                this.updateLayout(newRows, 'insert', data, ...args)
+                let newData = Object.assign({}, data, { id: uuid() });
+                newRows.splice(rowi, 0, { rowId: uuid(), items: [ newData ] })
+                this.updateLayout(newRows, 'insert', newData, ...args)
             },
             beginDrag: e => {
                 let [rowi, coli] = locateKey(this.getLayout(), data.id)
@@ -306,8 +309,10 @@ export default class BreadLoaf extends React.Component {
         return <div className="bread" style={{ cursor: this.state.dragObject ? 'move' : 'default' }}>
         <FlipMove onStart={(childElement, domNode) => {
             domNode.classList.add('flip-move-animating')
+            if(childElement.onMoveStart) childElement.onMoveStart();
         }} onFinish={(childElement, domNode) => {
             domNode.classList.remove('flip-move-animating')
+            if(childElement.onMoveFinish) childElement.onMoveFinish();
         }}>
             {this.props.header || null}
             <div className={"bread-row " + (
