@@ -183,18 +183,26 @@ export default class BreadLoaf extends React.Component {
         }
     }
 
-    makeItem(basis = {}){
-        if(this.props.makeItem){
-            basis = this.props.makeItem()
+    makeSlice(basis = {}){
+        if(this.props.makeSlice){
+            basis = this.props.makeSlice()
         }
         return basis
     }
 
+    makeRowID(){
+        if(this.props.makeRowID) return this.props.makeRowID();
+        return 'r' + uuid()
+    }
+    makeSliceID(){
+        if(this.props.makeSliceID) return this.props.makeSliceID();
+        return 's' + uuid()
+    }
     append(item){
         if(!item.id) item.id = uuid();
 
         this.updateLayout(this.getLayout().concat([{
-            rowId: uuid(),
+            rowId: this.makeRowID(),
             items: [ item ]
         }]), 'append', item)
     }
@@ -202,7 +210,7 @@ export default class BreadLoaf extends React.Component {
         if(!item.id) item.id = uuid();
 
         this.updateLayout([{
-            rowId: uuid(),
+            rowId: this.makeRowID(),
             items: [ item ]
         }].concat(this.getLayout()), 'prepend', item)
     }
@@ -225,12 +233,12 @@ export default class BreadLoaf extends React.Component {
                 }else{
                     if(e.altKey){
                         // don't remove the old one, just make a copy
-                        var oldThing = Object.assign({}, nextRows[i].items[j], { id: uuid() })
+                        var oldThing = Object.assign({}, nextRows[i].items[j], { id: this.makeSliceID() })
                     }else{
                         var oldThing = nextRows[i].items.splice(j, 1)[0];   
                     }
                     
-                    var newRow = { rowId: uuid(), items: [ oldThing ] }
+                    var newRow = { rowId: this.makeRowID(), items: [ oldThing ] }
                     if(anchor === 'top'){
                         nextRows.splice(+pos[1], 0, newRow)
                     }else{
@@ -240,7 +248,7 @@ export default class BreadLoaf extends React.Component {
             }else if(anchor === 'left' || anchor === 'right'){
                 if(e.altKey){
                     // don't remove the old one, just make a copy
-                    var oldThing = Object.assign({}, nextRows[i].items[j], { id: uuid() })
+                    var oldThing = Object.assign({}, nextRows[i].items[j], { id: this.makeSliceID() })
                 }else{
                     // swap it with null
                     var oldThing = nextRows[i].items.splice(j, 1, null)[0]; 
@@ -280,22 +288,22 @@ export default class BreadLoaf extends React.Component {
             fork: (...args) => {
                 var newRows = this.cloneLayout()
                 let [rowi, coli] = locateKey(newRows, data.id)
-                let newData = Object.assign({}, data, { id: uuid() });
+                let newData = Object.assign({}, data, { id: this.makeSliceID() });
                 newRows[rowi].items.splice(coli + 1, 0,  newData)
                 this.updateLayout(newRows, 'fork', newData, ...args)
             },
             after: (...args) => {
                 var newRows = this.cloneLayout()
                 let [rowi, coli] = locateKey(newRows, data.id)
-                let newData = Object.assign({}, data, { id: uuid() });
-                newRows.splice(rowi+1, 0, { rowId: uuid(), items: [ newData ] })
+                let newData = this.makeSlice() //Object.assign({}, data, { id: this.makeSliceID() });
+                newRows.splice(rowi+1, 0, { rowId: this.makeRowID(), items: [ newData ] })
                 this.updateLayout(newRows, 'insert', newData, ...args)
             },
             before: (...args) => {
                 var newRows = this.cloneLayout()
                 let [rowi, coli] = locateKey(newRows, data.id)
-                let newData = Object.assign({}, data, { id: uuid() });
-                newRows.splice(rowi, 0, { rowId: uuid(), items: [ newData ] })
+                let newData = this.makeSlice() //Object.assign({}, data, { id: this.makeSliceID() });
+                newRows.splice(rowi, 0, { rowId: this.makeRowID(), items: [ newData ] })
                 this.updateLayout(newRows, 'insert', newData, ...args)
             },
             beginDrag: e => {
@@ -325,8 +333,8 @@ export default class BreadLoaf extends React.Component {
                     let rowi = 0;
                     let divRect = d.target.getBoundingClientRect()
                     let data = newRows[rowi] && newRows[rowi].items[Math.floor(newRows[rowi].items.length * (d.clientX - divRect.left) / divRect.right)];
-                    let item = Object.assign({}, d.altKey ? data : {}, { id: uuid() });
-                    newRows.splice(rowi, 0, { rowId: uuid(), items: [  item ] })
+                    let item = Object.assign({}, d.altKey ? data : {}, { id: this.makeSliceID() });
+                    newRows.splice(rowi, 0, { rowId: this.makeRowID(), items: [  item ] })
                     this.updateLayout(newRows, 'insert', item)
                 }} />
             </div>
@@ -349,7 +357,7 @@ export default class BreadLoaf extends React.Component {
                                 { coli == 0 && <div className="vertical-divider divider-left" onClick={d => {
                                     var newRows = this.cloneLayout()
                                     let [rowi, coli] = locateKey(newRows, data.id)
-                                    let item = Object.assign({}, d.altKey ? data : this.makeItem(), { id: uuid() });
+                                    let item = Object.assign({}, d.altKey ? data : this.makeSlice(), { id: this.makeSliceID() });
                                     newRows[rowi].items.splice(coli, 0, item)
                                     this.updateLayout(newRows, d.altKey ? 'fork' : 'insert', item)
                                 }} /> }
@@ -357,7 +365,7 @@ export default class BreadLoaf extends React.Component {
                                 <div className="vertical-divider divider-right" onClick={d => {
                                     var newRows = this.cloneLayout()
                                     let [rowi, coli] = locateKey(newRows, data.id)
-                                    let item = Object.assign({}, d.altKey ? data : this.makeItem(), { id: uuid() });
+                                    let item = Object.assign({}, d.altKey ? data : this.makeSlice(), { id: this.makeSliceID() });
                                     newRows[rowi].items.splice(coli + 1, 0, item)
                                     this.updateLayout(newRows, d.altKey ? 'fork' : 'insert', item)
                                 }} />
@@ -371,8 +379,8 @@ export default class BreadLoaf extends React.Component {
                         let divRect = d.target.getBoundingClientRect()
                         let data = newRows[rowi].items[Math.floor(newRows[rowi].items.length * (d.clientX - divRect.left) / divRect.right)];
 
-                        let item = Object.assign({}, d.altKey ? data : this.makeItem(), { id: uuid() })
-                        newRows.splice(rowi + 1, 0, { rowId: uuid(), items: [  item ] })
+                        let item = Object.assign({}, d.altKey ? data : this.makeSlice(), { id: this.makeSliceID() })
+                        newRows.splice(rowi + 1, 0, { rowId: this.makeRowID(), items: [  item ] })
                         this.updateLayout(newRows, 'insert', item)
                     }} />
                 </div>
