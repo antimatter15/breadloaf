@@ -333,7 +333,7 @@ export default class BreadLoaf extends React.Component {
                     let rowi = 0;
                     let divRect = d.target.getBoundingClientRect()
                     let data = newRows[rowi] && newRows[rowi].items[Math.floor(newRows[rowi].items.length * (d.clientX - divRect.left) / divRect.right)];
-                    let item = Object.assign({}, d.altKey ? data : {}, { id: this.makeSliceID() });
+                    let item = Object.assign({}, d.altKey ? data : this.makeSlice(), { id: this.makeSliceID() });
                     newRows.splice(rowi, 0, { rowId: this.makeRowID(), items: [  item ] })
                     this.updateLayout(newRows, 'insert', item)
                 }} />
