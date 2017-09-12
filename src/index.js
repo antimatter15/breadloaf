@@ -324,7 +324,9 @@ export default class BreadLoaf extends React.Component {
         }} onFinish={(childElement, domNode) => {
             domNode.classList.remove('flip-move-animating')
             // if(childElement.onMoveFinish) childElement.onMoveFinish();
-            this.props.onMoved && this.props.onMoved(domNode);
+            
+        }} onFinishAll={(childElements, domNodes) => {
+            this.props.onMoved && this.props.onMoved(domNodes);
         }}>
             {this.props.header || null}
             <div className={"bread-row " + (
