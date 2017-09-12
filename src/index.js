@@ -1,6 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group' // ES6
+// import ReactCSSTransitionGroup from 'react-addons-css-transition-group' // ES6
+import TransitionGroup from 'react-transition-group/TransitionGroup';
+import CSSTransition from 'react-transition-group/CSSTransition';
+
 import FlipMove from 'react-flip-move';
 
 
@@ -344,16 +347,18 @@ export default class BreadLoaf extends React.Component {
                     (this.state.dockTarget === ('bottom-' + rowi) ? 'insert-bottom ' : '') +
                     (row.items.length > 1 ? '' : 'row-1')
                 )} key={row.rowId}>
-                    <ReactCSSTransitionGroup
-                      transitionName="bread"
-                      transitionEnterTimeout={300}
-                      transitionLeaveTimeout={300}>
+                    <TransitionGroup>
                         {row.items.map((data, coli) => 
+                            <CSSTransition
+                              classNames="bread"
+                              timeout={300}
+                              key={data.id}
+                              onEntered={(node) => this.props.onEntered && this.props.onEntered(node)}>
                             <div className={"bread-col " + (
                                 (this.state.dragObject === (rowi + '-' + coli) ? 'dragging ' : '')  +
                                 (this.state.dockTarget === ('left-' + rowi + '-' + coli) ? 'insert-left ' : '') +
                                 (this.state.dockTarget === ('right-' + rowi + '-' + coli) ? 'insert-right ' : '')
-                            )} key={data.id}>
+                            )}>
                                 { coli == 0 && <div className="vertical-divider divider-left" onClick={d => {
                                     var newRows = this.cloneLayout()
                                     let [rowi, coli] = locateKey(newRows, data.id)
@@ -370,8 +375,10 @@ export default class BreadLoaf extends React.Component {
                                     this.updateLayout(newRows, d.altKey ? 'fork' : 'insert', item)
                                 }} />
                             </div>
+
+                            </CSSTransition>
                         )}
-                    </ReactCSSTransitionGroup>
+                    </TransitionGroup>
                     <div className="divider divider-bottom"  onClick={d => {
                         var newRows = this.cloneLayout()
                         let rowi = newRows.findIndex(k => k.rowId == row.rowId)

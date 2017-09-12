@@ -103,7 +103,7 @@
 }
 
 
-.bread-leave {
+.bread-exit {
   overflow-x: hidden;
   
   flex: 1;
@@ -113,7 +113,7 @@
   animation: flexShrink 300ms ease forwards;
 }
 
-.bread-leave > * {
+.bread-exit > * {
   min-width: 200px;
 }
 
