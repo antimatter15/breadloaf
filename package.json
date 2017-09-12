@@ -1,6 +1,6 @@
 {
   "name": "breadloaf",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "description": "A draggable, dockable, notebook-style layout engine for React",
   "main": "lib/index.js",
   "module": "es/index.js",

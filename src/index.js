@@ -320,10 +320,11 @@ export default class BreadLoaf extends React.Component {
         return <div className="bread" style={{ cursor: this.state.dragObject ? 'move' : 'default' }}>
         <FlipMove onStart={(childElement, domNode) => {
             domNode.classList.add('flip-move-animating')
-            if(childElement.onMoveStart) childElement.onMoveStart();
+            // if(childElement.onMoveStart) childElement.onMoveStart();
         }} onFinish={(childElement, domNode) => {
             domNode.classList.remove('flip-move-animating')
-            if(childElement.onMoveFinish) childElement.onMoveFinish();
+            // if(childElement.onMoveFinish) childElement.onMoveFinish();
+            this.props.onMoved && this.props.onMoved(domNode);
         }}>
             {this.props.header || null}
             <div className={"bread-row " + (
@@ -353,7 +354,7 @@ export default class BreadLoaf extends React.Component {
                               classNames="bread"
                               timeout={300}
                               key={data.id}
-                              onEntered={(node) => this.props.onEntered && this.props.onEntered(node)}>
+                              onEntered={(node) => this.props.onMoved && this.props.onMoved(node)}>
                             <div className={"bread-col " + (
                                 (this.state.dragObject === (rowi + '-' + coli) ? 'dragging ' : '')  +
                                 (this.state.dockTarget === ('left-' + rowi + '-' + coli) ? 'insert-left ' : '') +
